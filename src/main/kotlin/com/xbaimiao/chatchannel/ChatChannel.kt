@@ -11,9 +11,11 @@ import taboolib.common.platform.command.command
 import taboolib.module.chat.uncolored
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
-import taboolib.module.nms.sendMap
+import taboolib.module.nms.buildMap
+import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.sendLang
 import java.net.URL
+import java.util.logging.Logger
 
 object ChatChannel : Plugin() {
 
@@ -21,9 +23,14 @@ object ChatChannel : Plugin() {
     lateinit var config: Configuration
         private set
 
+    lateinit var logger: Logger
+        private set
+
 //    val plugin by lazy { BukkitPlugin.getInstance() }
 
     override fun onEnable() {
+        logger = BukkitPlugin.getInstance().logger
+
         command(
             name = "qq",
             permissionDefault = PermissionDefault.TRUE
@@ -33,8 +40,18 @@ object ChatChannel : Plugin() {
                     execute<Player> { sender, _, argument ->
                         runCatching { URL(argument) }
                             .onFailure { sender.sendMessage(Component.text("请输入正确的链接", NamedTextColor.RED)) }
-                            .onSuccess {
-                                sender.sendMap(it)
+                            .onSuccess { url ->
+                                buildMap(url)
+                                    .thenAccept { it.sendTo(sender) }
+                                    .exceptionally {
+                                        sender.sendMessage(
+                                            Component.text("处理图片时发生错误，图片地址: $url", NamedTextColor.RED)
+                                        )
+                                        logger.severe("处理图片时发生错误， 图片地址: $url")
+                                        logger.severe("错误信息: ${it.message}")
+                                        null
+                                    }
+
                                 sender.sendMessage(Component.text("已发送请求，请等待图片下载完成"))
                             }
                     }
