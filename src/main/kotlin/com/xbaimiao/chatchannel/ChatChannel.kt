@@ -1,31 +1,27 @@
 package com.xbaimiao.chatchannel
 
-import com.xbaimiao.chatchannel.Switch.isSwitch
-import com.xbaimiao.chatchannel.Switch.setSwitch
 import me.albert.amazingbot.bot.Bot
 import me.clip.placeholderapi.PlaceholderAPI
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.entity.Player
-import taboolib.common.env.RuntimeDependency
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.command.PermissionDefault
 import taboolib.common.platform.command.command
 import taboolib.module.chat.uncolored
 import taboolib.module.configuration.Config
-import taboolib.module.configuration.SecuredFile
+import taboolib.module.configuration.Configuration
 import taboolib.module.nms.sendMap
-import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.sendLang
+import java.net.URL
 
-@RuntimeDependency(
-    value = "!org.jetbrains.kotlin:kotlin-stdlib:1.5.31"
-)
 object ChatChannel : Plugin() {
 
     @Config(value = "config.yml")
-    lateinit var config: SecuredFile
+    lateinit var config: Configuration
         private set
 
-    val plugin by lazy { BukkitPlugin.getInstance() }
+//    val plugin by lazy { BukkitPlugin.getInstance() }
 
     override fun onEnable() {
         command(
@@ -34,14 +30,19 @@ object ChatChannel : Plugin() {
         ) {
             literal("look", optional = true) {
                 dynamic {
-                    execute<Player> { sender, context, argument ->
-                        sender.sendMap(argument)
+                    execute<Player> { sender, _, argument ->
+                        runCatching { URL(argument) }
+                            .onFailure { sender.sendMessage(Component.text("请输入正确的链接", NamedTextColor.RED)) }
+                            .onSuccess {
+                                sender.sendMap(it)
+                                sender.sendMessage(Component.text("已发送请求，请等待图片下载完成"))
+                            }
                     }
                 }
             }
             literal("send", optional = true) {
                 dynamic {
-                    execute<Player> { sender, context, argument ->
+                    execute<Player> { sender, _, argument ->
                         var message = PlaceholderAPI.setPlaceholders(
                             sender,
                             config.getString("GameToGroup")
@@ -55,17 +56,16 @@ object ChatChannel : Plugin() {
                 }
             }
             literal("onOff", optional = true) {
-                execute<Player> { sender, context, argument ->
-                    if (sender.isSwitch()) {
-                        sender.setSwitch(false)
+                execute<Player> { sender, _, _ ->
+                    if (sender.switch) {
+                        sender.switch = false
                         sender.sendLang("off")
                     } else {
-                        sender.setSwitch(true)
+                        sender.switch = true
                         sender.sendLang("on")
                     }
                 }
             }
         }
     }
-
 }
