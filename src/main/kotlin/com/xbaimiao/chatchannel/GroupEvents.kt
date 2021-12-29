@@ -1,5 +1,6 @@
 package com.xbaimiao.chatchannel
 
+import kotlinx.coroutines.runBlocking
 import me.albert.amazingbot.bot.Bot
 import me.albert.amazingbot.events.GroupMessageEvent
 import net.kyori.adventure.text.Component
@@ -17,14 +18,10 @@ import java.util.*
 object GroupEvents {
 
     @SubscribeEvent
-    suspend fun chat(event: GroupMessageEvent) {
+    fun chat(event: GroupMessageEvent) = runBlocking {
         val userId = event.userID
         val uuid: UUID? = Bot.getApi().getPlayer(userId)
         val name = uuid?.let { Bukkit.getOfflinePlayer(it).name } ?: event.event.sender.nameCard
-
-//        val name = if (uuid == null) {
-//            event.event.sender.nameCard
-//        } else Bukkit.getOfflinePlayer(uuid).name
 
         val msg = StringBuilder()
         val message = event.event.message
@@ -39,7 +36,7 @@ object GroupEvents {
 
             msg += when {
                 it is Image -> ChatChannel.config.getString("imageFormat")!!
-                it is At -> "§a@" + Objects.requireNonNull(group[it.target])!!.nick
+                it is At -> "§a@" + group[it.target]!!.nick
                 it.contentToString().contains("\"app\":") -> "§f[§aAPP§f]"
                 it is LightApp -> "§f[§aAPP§f]"
                 else -> it.contentToString()
@@ -90,37 +87,6 @@ object GroupEvents {
         }
 
         Bukkit.getOnlinePlayers().asSequence().filter(Player::switch).forEach { it.sendMessage(message) }
-
-//        no... what the hell is this
-//        kinda unreadable to me
-//        var imageAt = 0
-//        val tellrawJson = TextComponent()
-//
-//        val replacedText = text.replace(imageFormat, "¤")
-//        var stringBuilder = StringBuilder()
-//        for (element in replacedText) {
-//            if (element == '¤') {
-//                tellrawJson.addExtra(stringBuilder.toString())
-//                stringBuilder = StringBuilder()
-//                val image = images[imageAt]
-//                imageAt++
-//                val t = TextComponent(imageFormat)
-//                t.hoverEvent = HoverEvent(
-//                    HoverEvent.Action.SHOW_TEXT,
-//                    ComponentBuilder(ChatChannel.config.getString("imageHover")).create()
-//                )
-//                val url = Util.query(image)
-//                t.clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, "/qq look $url")
-//                tellrawJson.addExtra(t)
-//                continue
-//            }
-//            stringBuilder.append(element)
-//        }
-//        for (player in Bukkit.getOnlinePlayers()) {
-//            if (player.isSwitch()) {
-//                player.spigot().sendMessage(tellrawJson)
-//            }
-//        }
     }
 
     private fun sendAt(name: String, at: At) {
@@ -132,16 +98,5 @@ object GroupEvents {
                 ChatChannel.config.getString("At.subTitle")!!.replace("%player%", name),
                 20, 20, 20
             )
-
-//        if (uuid != null) {
-//            val player1 = Bukkit.getOfflinePlayer(uuid)
-//            if (player1.isOnline) {
-//                player1.player!!.sendTitle(
-//                    ChatChannel.config.getString("At.title")!!.replace("%player%", name),
-//                    ChatChannel.config.getString("At.subTitle")!!.replace("%player%", name),
-//                    20, 20, 20
-//                )
-//            }
-//        }
     }
 }

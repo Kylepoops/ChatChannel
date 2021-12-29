@@ -23,12 +23,15 @@ taboolib {
         )
     }
     install("common")
+    install("common-5")
     install("platform-bukkit")
     install("module-configuration")
     install("module-chat")
     install("module-lang")
     install("module-nms")
     install("module-nms-util")
+    options("skip-kotlin")
+    options("skip-kotlin-relocate")
     version = "6.0.7-6"
 }
 

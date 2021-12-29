@@ -12,18 +12,18 @@ import taboolib.module.chat.uncolored
  */
 @Suppress("unused")
 object ChatEvents {
+    private val enabled = ChatChannel.config.getBoolean("GameChatToGroup.Enable")
+    private val groups = ChatChannel.config.getStringList("GameChatToGroup.groups")
 
     @SubscribeEvent
     fun chat(event: AsyncChatEvent) {
-        if (!ChatChannel.config.getBoolean("GameChatToGroup.Enable")) return
+        if (!enabled) return
 
         val legacyMessage = LegacyComponentSerializer
             .legacySection()
             .serialize(event.message())
             .uncolored()
 
-        ChatChannel.config.getStringList("GameChatToGroup.groups").forEach {
-            Bot.getApi().sendGroupMsg(it, "${event.player.name}: $legacyMessage")
-        }
+        groups.forEach { Bot.getApi().sendGroupMsg(it, "${event.player.name}: $legacyMessage") }
     }
 }
