@@ -19,9 +19,9 @@ object GroupEvents {
 
     @SubscribeEvent
     fun chat(event: GroupMessageEvent) = runBlocking {
-        val userId = event.userID
-        val uuid: UUID? = Bot.getApi().getPlayer(userId)
-        val name = uuid?.let { Bukkit.getOfflinePlayer(it).name } ?: event.event.sender.nameCard
+        val name = Bot.getApi().getPlayer(event.userID)
+            ?.let { Bukkit.getOfflinePlayer(it).name }
+            ?: event.event.sender.nameCard
 
         val msg = StringBuilder()
         val message = event.event.message
@@ -31,7 +31,7 @@ object GroupEvents {
         message.forEach {
             when (it) {
                 is Image -> images.add(it)
-                is At -> sendAt(name, it)
+                is At -> sendAtActionBar(name, it)
             }
 
             msg += when {
@@ -56,42 +56,42 @@ object GroupEvents {
                 .forEach { it.sendMessage(Component.text(text)) }
             return
         }
-        sendImage(images, text)
+        sendMixedMessage(images, text)
     }
 
-    private suspend fun sendImage(images: List<Image>, text: String) {
+    private suspend fun sendMixedMessage(images: List<Image>, text: String) {
         val imageFormat = ChatChannel.config.getString("imageFormat")!!
+        val imageHover = ChatChannel.config.getString("imageHover")!!
         var message = Component.empty()
 
-        val imageList = images.toMutableList()
-        val caches = mutableListOf<Any>()
-        var cacheText = text
+        val messageComponents = mutableListOf<Any>()
+        val imageComponents = images.toMutableList()
+        var leftString = text
 
-        while (cacheText.isNotEmpty()) {
-            caches += cacheText.substringBefore(imageFormat)
-            cacheText = cacheText.substringAfter(imageFormat)
-            caches += imageList.removeFirst()
+        while (leftString.isNotEmpty()) {
+            messageComponents += leftString.substringBefore(imageFormat)
+            leftString = leftString.substringAfter(imageFormat)
+            messageComponents += imageComponents.removeFirst()
         }
 
-        for (element in caches) {
-            message += when (element) {
-                is String -> Component.text(element)
+        for (component in messageComponents) {
+            message += when (component) {
+                is String -> Component.text(component)
                 is Image -> {
                     Component.text(imageFormat)
-                        .hoverEvent(HoverEvent.showText(Component.text("点击查看图片")))
-                        .clickEvent(ClickEvent.runCommand("/qq look ${element.queryStringUrl()}"))
+                        .hoverEvent(HoverEvent.showText(Component.text(imageHover)))
+                        .clickEvent(ClickEvent.runCommand("/qq look ${component.queryStringUrl()}"))
                 }
                 // should never happen
-                else -> throw IllegalStateException("Unknown element type: ${element::class.java.name}")
+                else -> throw IllegalStateException("Unknown component type: ${component::class.java.name}")
             }
         }
 
         Bukkit.getOnlinePlayers().asSequence().filter(Player::switch).forEach { it.sendMessage(message) }
     }
 
-    private fun sendAt(name: String, at: At) {
-        val atId: Long = at.target
-        Bot.getApi().getPlayer(atId)
+    private fun sendAtActionBar(name: String, at: At) {
+        Bot.getApi().getPlayer(at.target)
             ?.let { Bukkit.getOfflinePlayer(it) }?.player
             ?.sendTitle(
                 ChatChannel.config.getString("At.title")!!.replace("%player%", name),

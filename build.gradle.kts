@@ -7,21 +7,6 @@ plugins {
 }
 
 taboolib {
-    description {
-        contributors {
-            name("小白")
-            name("Kylepoops")
-        }
-        dependencies {
-            name("AmazingBot")
-        }
-
-        bukkitApi("1.17")
-
-        bukkitNodes = mapOf(
-            "libraries" to listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.10")
-        )
-    }
     install("common")
     install("common-5")
     install("platform-bukkit")
@@ -33,6 +18,13 @@ taboolib {
     options("skip-kotlin")
     options("skip-kotlin-relocate")
     version = "6.0.7-6"
+
+    description {
+        bukkitApi("1.17")
+        bukkitNodes = mapOf("libraries" to listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.10"))
+        dependencies { name("AmazingBot") }
+        contributors { name("小白"); name("Kylepoops") }
+    }
 }
 
 repositories {
