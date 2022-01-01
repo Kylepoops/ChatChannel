@@ -71,14 +71,20 @@ object GroupEvents {
         val imageComponents = images.toMutableList()
         val textComponents = text.split(imageFormat).toMutableList()
 
-        require(images.isNotEmpty()) { "Image components is empty" }
+        require(imageComponents.isNotEmpty()) { "Image components is empty" }
         val equals = textComponents.size - 1 == imageComponents.size
         require(equals) { unexpectedImageSizeMessage.format(textComponents.size - 1, imageComponents.size) }
 
-        while (textComponents.isNotEmpty()) {
+        while (imageComponents.isNotEmpty()) {
             messageComponents += textComponents.removeFirst()
             messageComponents += imageComponents.removeFirst()
         }
+
+        // there will still be one text left because text is always one more than images
+        messageComponents += textComponents.removeFirst()
+
+        check(imageComponents.isEmpty()) { "image components is not empty and its size is ${imageComponents.size}" }
+        check(textComponents.isEmpty()) { "text components is not empty and its size is ${textComponents.size}" }
 
         for (component in messageComponents) {
             message += when (component) {
