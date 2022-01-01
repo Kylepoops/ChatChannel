@@ -17,6 +17,9 @@ import java.util.*
 @Suppress("unused")
 object GroupEvents {
 
+    private const val unexpectedImageSizeMessage =
+        "Amount of image placeholders in text components is %s, which is not equal to image components size %s"
+
     @SubscribeEvent
     fun chat(event: GroupMessageEvent) = runBlocking {
         val name = Bot.getApi().getPlayer(event.userID)
@@ -66,11 +69,14 @@ object GroupEvents {
 
         val messageComponents = mutableListOf<Any>()
         val imageComponents = images.toMutableList()
-        var leftString = text
+        val textComponents = text.split(imageFormat).toMutableList()
 
-        while (leftString.isNotEmpty()) {
-            messageComponents += leftString.substringBefore(imageFormat)
-            leftString = leftString.substringAfter(imageFormat)
+        require(images.isNotEmpty()) { "Image components is empty" }
+        val equals = textComponents.size - 1 == imageComponents.size
+        require(equals) { unexpectedImageSizeMessage.format(textComponents.size - 1, imageComponents.size) }
+
+        while (textComponents.isNotEmpty()) {
+            messageComponents += textComponents.removeFirst()
             messageComponents += imageComponents.removeFirst()
         }
 
