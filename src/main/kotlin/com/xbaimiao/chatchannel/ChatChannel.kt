@@ -5,29 +5,41 @@ import com.xbaimiao.chatchannel.Switch.setSwitch
 import me.albert.amazingbot.bot.Bot
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.entity.Player
-import taboolib.common.env.RuntimeDependency
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.command.PermissionDefault
 import taboolib.common.platform.command.command
 import taboolib.module.chat.uncolored
 import taboolib.module.configuration.Config
-import taboolib.module.configuration.SecuredFile
+import taboolib.module.configuration.ConfigFile
 import taboolib.module.nms.sendMap
 import taboolib.platform.BukkitPlugin
 import taboolib.platform.util.sendLang
+import java.net.URL
 
-@RuntimeDependency(
-    value = "!org.jetbrains.kotlin:kotlin-stdlib:1.5.31"
-)
 object ChatChannel : Plugin() {
 
-    @Config(value = "config.yml")
-    lateinit var config: SecuredFile
+    @Config(value = "config.yml", autoReload = true, migrate = true)
+    lateinit var config: ConfigFile
+        private set
+
+    @Config(value = "advancement.yml", autoReload = true, migrate = true)
+    lateinit var advancement: ConfigFile
         private set
 
     val plugin by lazy { BukkitPlugin.getInstance() }
 
+    val messageGroup get() = config.getStringList("MessageGroup")
+
+    override fun onDisable() {
+        messageGroup.forEach {
+            Bot.getApi().sendGroupMsg(it,"服务器已关闭!")
+        }
+    }
+
     override fun onEnable() {
+        messageGroup.forEach {
+            Bot.getApi().sendGroupMsg(it,"服务器已启动!")
+        }
         command(
             name = "qq",
             permissionDefault = PermissionDefault.TRUE
@@ -35,7 +47,7 @@ object ChatChannel : Plugin() {
             literal("look", optional = true) {
                 dynamic {
                     execute<Player> { sender, context, argument ->
-                        sender.sendMap(argument)
+                        sender.sendMap(URL(argument))
                     }
                 }
             }

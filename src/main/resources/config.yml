@@ -11,3 +11,9 @@ GameChatToGroup:
   Enable: false
   groups:
     - "123456"
+MessageGroup:
+  - '123456'
+Message:
+  Join: "%player_name% 加入了服务器"
+  Quit: "%player_name% 离开了服务器"
+  Death: "%player_name% 在服务器中惨遭死亡"
