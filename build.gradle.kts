@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     java
     kotlin("jvm") version "1.6.20"
@@ -19,7 +21,7 @@ taboolib {
 
     description {
         bukkitApi("1.17")
-        bukkitNodes = mapOf("libraries" to listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.10"))
+        bukkitNodes = mapOf("libraries" to listOf("org.jetbrains.kotlin:kotlin-stdlib:1.6.20"))
         dependencies { name("AmazingBot") }
         contributors {
             name("小白")
@@ -36,11 +38,11 @@ repositories {
 }
 
 dependencies {
+    compileOnly(fileTree("libs"))
     compileOnly("io.papermc.paper:paper-api:1.17-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.1")
     compileOnly("net.mamoe:mirai-core:2.8.3")
     compileOnly(kotlin("stdlib"))
-    compileOnly(fileTree("libs"))
 }
 
 tasks.withType<JavaCompile> {

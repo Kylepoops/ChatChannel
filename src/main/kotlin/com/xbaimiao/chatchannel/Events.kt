@@ -22,7 +22,7 @@ object Events {
             for (groups in ChatChannel.config.getStringList("GameChatToGroup.groups")) {
                 var message = PlaceholderAPI.setPlaceholders(
                     event.player,
-                    ChatChannel.config.getString("GameToGroup")
+                    ChatChannel.config.getString("GameToGroup")!!
                 )
                 message = message.replace("%msg%", event.message.uncolored())
                 Bot.getApi().sendGroupMsg(groups, message)
@@ -32,7 +32,7 @@ object Events {
 
     @SubscribeEvent
     fun join(event: PlayerJoinEvent) {
-        val message = PlaceholderAPI.setPlaceholders(event.player, ChatChannel.config.getString("Message.Join"))
+        val message = PlaceholderAPI.setPlaceholders(event.player, ChatChannel.config.getString("Message.Join")!!)
         ChatChannel.messageGroup.forEach {
             Bot.getApi().sendGroupMsg(it, message)
         }
@@ -40,7 +40,7 @@ object Events {
 
     @SubscribeEvent
     fun quit(event: PlayerQuitEvent) {
-        val message = PlaceholderAPI.setPlaceholders(event.player, ChatChannel.config.getString("Message.Quit"))
+        val message = PlaceholderAPI.setPlaceholders(event.player, ChatChannel.config.getString("Message.Quit")!!)
         ChatChannel.messageGroup.forEach {
             Bot.getApi().sendGroupMsg(it, message)
         }
@@ -48,7 +48,7 @@ object Events {
 
     @SubscribeEvent
     fun death(event: PlayerDeathEvent) {
-        val message = PlaceholderAPI.setPlaceholders(event.entity, ChatChannel.config.getString("Message.Death"))
+        val message = PlaceholderAPI.setPlaceholders(event.entity, ChatChannel.config.getString("Message.Death")!!)
         ChatChannel.messageGroup.forEach {
             Bot.getApi().sendGroupMsg(it, message)
         }

@@ -1,6 +1,6 @@
 package com.xbaimiao.chatchannel
 
-import kotlinx.coroutines.runBlocking
+import com.xbaimiao.chatchannel.manager.ImageManager
 import me.albert.amazingbot.bot.Bot
 import me.albert.amazingbot.events.GroupMessageEvent
 import net.kyori.adventure.text.Component
@@ -12,7 +12,6 @@ import net.mamoe.mirai.message.data.LightApp
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import taboolib.common.platform.event.SubscribeEvent
-import java.util.*
 
 @Suppress("unused")
 object GroupEvents {
@@ -21,7 +20,7 @@ object GroupEvents {
         "Amount of image placeholders in text components is %s, which is not equal to image components size %s"
 
     @SubscribeEvent
-    fun chat(event: GroupMessageEvent) = runBlocking {
+    fun chat(event: GroupMessageEvent) {
         val name = Bot.getApi().getPlayer(event.userID)
             ?.let { Bukkit.getOfflinePlayer(it).name }
             ?: event.event.sender.nameCard
@@ -52,7 +51,7 @@ object GroupEvents {
         sendMessage(images, text)
     }
 
-    private suspend fun sendMessage(images: List<Image>, text: String) {
+    private fun sendMessage(images: List<Image>, text: String) {
         if (images.isEmpty()) {
             Bukkit.getOnlinePlayers().asSequence()
                 .filter(Player::switch)
@@ -62,7 +61,7 @@ object GroupEvents {
         sendMixedMessage(images, text)
     }
 
-    private suspend fun sendMixedMessage(images: List<Image>, text: String) {
+    private fun sendMixedMessage(images: List<Image>, text: String) {
         val imageFormat = ChatChannel.config.getString("imageFormat")!!
         val imageHover = ChatChannel.config.getString("imageHover")!!
         var message = Component.empty()
@@ -92,7 +91,7 @@ object GroupEvents {
                 is Image -> {
                     Component.text(imageFormat)
                         .hoverEvent(HoverEvent.showText(Component.text(imageHover)))
-                        .clickEvent(ClickEvent.runCommand("/qq look ${component.queryStringUrl()}"))
+                        .clickEvent(ClickEvent.runCommand("/qq look ${ImageManager.add(component)}"))
                 }
                 // should never happen
                 else -> throw IllegalStateException("Unknown component type: ${component::class.java.name}")

@@ -1,5 +1,6 @@
 package com.xbaimiao.chatchannel
 
+import me.albert.amazingbot.bot.Bot
 import taboolib.common.platform.Plugin
 import taboolib.module.configuration.Config
 import taboolib.module.configuration.Configuration
@@ -25,17 +26,15 @@ object ChatChannel : Plugin() {
 
     override fun onDisable() {
         messageGroup.forEach {
-            Bot.getApi().sendGroupMsg(it,"服务器已关闭!")
+            Bot.getApi().sendGroupMsg(it, "服务器已关闭!")
         }
     }
 
     override fun onEnable() {
         messageGroup.forEach {
-            Bot.getApi().sendGroupMsg(it,"服务器已启动!")
+            Bot.getApi().sendGroupMsg(it, "服务器已启动!")
         }
         logger = BukkitPlugin.getInstance().logger
         Command.register()
     }
-}
-
 }
