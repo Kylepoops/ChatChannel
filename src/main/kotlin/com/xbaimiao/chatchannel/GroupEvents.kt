@@ -1,5 +1,6 @@
 package com.xbaimiao.chatchannel
 
+import com.xbaimiao.chatchannel.manager.ImageManager
 import kotlinx.coroutines.runBlocking
 import me.albert.amazingbot.bot.Bot
 import me.albert.amazingbot.events.GroupMessageEvent
@@ -12,7 +13,6 @@ import net.mamoe.mirai.message.data.LightApp
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import taboolib.common.platform.event.SubscribeEvent
-import java.util.*
 
 @Suppress("unused")
 object GroupEvents {
@@ -92,7 +92,7 @@ object GroupEvents {
                 is Image -> {
                     Component.text(imageFormat)
                         .hoverEvent(HoverEvent.showText(Component.text(imageHover)))
-                        .clickEvent(ClickEvent.runCommand("/qq look ${component.queryStringUrl()}"))
+                        .clickEvent(ClickEvent.runCommand("/qq look ${ImageManager.add(component)}"))
                 }
                 // should never happen
                 else -> throw IllegalStateException("Unknown component type: ${component::class.java.name}")
